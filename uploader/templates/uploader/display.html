@@ -1,0 +1,175 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gallery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0 2rem;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #e0eafc, #cfdef3);
+      color: #333;
+    }
+
+    /* Navbar styling */
+    nav {
+      background: #ffffff;
+      padding: 1rem 2rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: center;
+      gap: 1.2rem;
+      border-radius: 12px;
+      margin: 1.5rem auto;
+      max-width: 1000px;
+    }
+
+    nav a {
+      color: #007BFF;
+      text-decoration: none;
+      font-weight: 600;
+      padding: 0.5rem 1.2rem;
+      border-radius: 10px;
+      background-color: #f0f8ff;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+
+    nav a:hover {
+      background-color: #d0e8ff;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+      transform: translateY(-2px);
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      color: #333;
+      text-shadow: 1px 1px 5px rgba(0,0,0,0.1);
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      padding-bottom: 2rem;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .image-container {
+      width: 100%;
+      aspect-ratio: 16 / 9; /* YouTube-like ratio */
+      overflow: hidden;
+    }
+
+    .card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card-content {
+      padding: 1rem;
+    }
+
+    .card-content p {
+      margin: 0.5rem 0;
+      color: #555;
+    }
+
+    .card-content .user {
+      font-weight: bold;
+      color: #007BFF;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-content .actions {
+      margin-top: 1rem;
+    }
+
+    .card-content .actions a {
+      margin-right: 1rem;
+      text-decoration: none;
+      color: #fff;
+      background: #007BFF;
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      transition: background 0.3s ease;
+      box-shadow: 0 3px 6px rgba(0, 123, 255, 0.3);
+    }
+
+    .card-content .actions a:hover {
+      background: #0056b3;
+    }
+
+    @media (max-width: 600px) {
+      nav {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding: 1rem;
+      }
+
+      .card-content .actions a {
+        display: inline-block;
+        margin-bottom: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav>
+    <a href="{% url 'login' %}">Login</a>
+    <a href="{% url 'register' %}">Register</a>
+    <a href="{% url 'upload' %}">Upload</a>
+    <a href="{% url 'display' %}">View Uploads</a>
+    {% if user.is_authenticated %}
+      <a href="{% url 'logout' %}">Logout</a>
+    {% endif %}
+  </nav>
+
+  <h2>All Uploaded Images</h2>
+
+  <div class="gallery">
+    {% for item in uploads %}
+      <div class="card">
+        <div class="image-container">
+          <img src="{{ item.image.url }}" alt="Uploaded Image" />
+        </div>
+        <div class="card-content">
+          <p class="user">Uploaded by: {{ item.user.username }}</p>
+          <p>{{ item.text }}</p>
+          {% if user.is_authenticated and item.user == user %}
+            <div class="actions">
+              <a href="{% url 'edit' item.id %}">Edit</a>
+              <a href="{% url 'delete' item.id %}">Delete</a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+</body>
+</html>
