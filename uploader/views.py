@@ -17,6 +17,10 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404
 
 
+from .models import Upload, Like, Comment
+
+
+
 
 
 '''@login_required(login_url='login')
@@ -78,6 +82,37 @@ def delete_upload(request, pk):
 def display_view(request):
     uploads = Upload.objects.all().order_by('-id')
     return render(request, 'uploader/display.html', {'uploads': uploads})
+
+
+def like_upload(request, upload_id):
+    if not request.user.is_authenticated:
+        messages.error(request, "You must be logged in to like images.")
+        return redirect('display')  # Redirect to display or any page you want
+
+    upload = get_object_or_404(Upload, id=upload_id)
+    like, created = Like.objects.get_or_create(user=request.user, upload=upload)
+
+    if not created:
+        like.delete()  # Unlike if already liked
+
+    return redirect('display')
+
+@login_required
+def add_comment(request, upload_id):
+    if request.method == 'POST':
+        upload = get_object_or_404(Upload, id=upload_id)
+        Comment.objects.create(upload=upload, user=request.user, text=request.POST['comment'])
+    return redirect('display')
+
+
+@login_required
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+
+    if comment.user == request.user:
+        comment.delete()
+    return redirect('display')  # Redirect back to display view
+
 
 
 
